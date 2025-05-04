@@ -1,12 +1,12 @@
 # app.py
 import streamlit as st
 import regras  # módulo com a lógica do jogo
+import agente_bfs  # módulo com o agente de busca em largura
 
 st.set_page_config(page_title="Mundo de Wumpus", layout="wide")
 
 # ---------- Sidebar – parâmetros de jogo ----------
-with st.sidebar:
-    st.title("Configuração")
+with st.sidebar.expander("⚙️ Configuração do Jogo", expanded=True):
     st.number_input("Número de Quadrantes (N x N)",
                     min_value=3, max_value=10, value=3, step=1,
                     key="num_quadrantes")
@@ -27,11 +27,15 @@ with st.sidebar:
         st.error("A soma de Ouro, Buracos e o Wumpus não pode exceder o número de quadrantes.")
         st.stop()
 
+# ---------- Sidebar – informações do jogo ----------
+with st.sidebar.expander("🤖 Agentes"):
+    st.button("Agente BFS", on_click=agente_bfs.executar_agente, use_container_width=True)
+
 # ---------- Reinício ou primeira execução ----------
 if (
     "tabuleiro" not in st.session_state or
     st.session_state.num_quadrantes != len(st.session_state.tabuleiro) or
-    st.sidebar.button("🔄 Reiniciar Jogo")
+    st.sidebar.button("🔄 Reiniciar Jogo", use_container_width=True)    
 ):
     regras.criar_tabuleiro()
     st.session_state.atual = (0, 0)
@@ -88,10 +92,5 @@ with cols[-1]:
     st.markdown(f"**Pontuação:** {st.session_state.pontuacao}")
 
 # ---------- Painel de feedback / sentidos ----------
-st.sidebar.subheader("Percepções do agente")
-st.sidebar.text_area(
-    label="",
-    value=st.session_state.sentidos,
-    height=400,
-    key="sentidos_area",
-)
+with st.sidebar.expander("🗣️ Sentidos do Agente", expanded=True):
+    st.markdown(st.session_state.sentidos) 
